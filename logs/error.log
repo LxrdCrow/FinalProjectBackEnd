@@ -1,0 +1,2 @@
+mkdir logs
+chmod 755 logs

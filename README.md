@@ -35,7 +35,7 @@ This is the back-end implementation of the Final Project for managing user authe
    DB_USER=your_database_user
    DB_PASS=your_database_password
    SECRET_KEY=your_secret_key
-   APP_ENV=development
+   APP_ENV=development # or production
    ```
 
 5. Run the database migrations:

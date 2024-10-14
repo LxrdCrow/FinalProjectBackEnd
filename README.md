@@ -1,112 +1,84 @@
-# Final Project: RESTful API with JWT Authentication
+# Final Project BackEnd
 
-This project is a backend implementation of a RESTful API for user management, including user registration, login, and protected routes. It uses JSON Web Tokens (JWT) for authentication and relies on a MySQL database for storing user data.
+This is the back-end implementation of the Final Project for managing user authentication, registration, and protected routes. The project uses PHP, MySQL, and JWT for secure authentication.
 
 ## Features
 
-- **User Registration**: Allows new users to register by providing a username, email, and password.
-- **User Login**: Authenticates users and provides a JWT token for accessing protected routes.
-- **Protected Routes**: Routes that require a valid JWT token for access.
-- **Profile Update**: Users can update their profile information.
-- **Error Logging**: In production mode, errors are logged to a file in the `logs/` directory.
-
-## Technologies Used
-
-- **PHP** (7.4 or 8.0)
-- **MySQL** for database
-- **PDO** for database interaction
-- **Firebase JWT** for authentication
-- **PHP dotenv** for environment variable management
-- **Composer** for dependency management
+- **User Registration**: Users can register by providing a username, email, and password.
+- **User Login**: Users can log in and receive a JWT token for secure access.
+- **Protected Routes**: Routes that require authentication are protected using JWT tokens.
+- **Error Handling**: Configurable error handling based on the environment (development/production).
+- **Logs**: Errors are logged in production mode to `logs/error.log`.
 
 ## Installation
 
-1. **Clone the repository**:
-
+1. Clone the repository:
    ```bash
-   git clone https://github.com/username/repository.git
-   cd repository
+   git clone https://github.com/LxrdCrow/FinalProjectBackEnd.git
    ```
 
-2. **Install Dependencies**:
+2. Navigate to the project directory:
+   ```bash
+   cd FinalProjectBackEnd
+   ```
 
-   Make sure you have [Composer](https://getcomposer.org/) installed, then run:
-
+3. Install the required dependencies:
    ```bash
    composer install
    ```
 
-3. **Environment Setup**:
-
-   Create a `.env` file in the root directory and set up your environment variables:
-
-   ```env
+4. Set up your environment variables:
+   Create a `.env` file in the root of your project and configure your database and other settings:
+   ```
    DB_HOST=localhost
    DB_NAME=your_database_name
    DB_USER=your_database_user
    DB_PASS=your_database_password
    SECRET_KEY=your_secret_key
-   APP_ENV=development  # or production
+   APP_ENV=development
    ```
 
-4. **Database Setup**:
-
-   Run the SQL migration to create the required tables:
-
+5. Run the database migrations:
+   Make sure you have created the necessary database, then run the SQL migration:
    ```bash
-   mysql -u your_database_user -p your_database_name < migrations.sql
+   mysql -u your_username -p your_database_name < migrations.sql
    ```
 
-5. **Permissions**:
-
-   Ensure that the `logs/` directory has the correct permissions for logging errors:
-
+6. Set file permissions for the logs directory:
    ```bash
-   mkdir logs
    chmod 755 logs
    ```
 
 ## Usage
 
-- **Run the API locally**:
+- **Starting the server**: Make sure your PHP server is running (e.g., XAMPP or another local PHP environment).
 
-   Start your local server (e.g., with XAMPP or another PHP development environment) and access the API.
+- **API Endpoints**:
+   - `POST /register`: Register a new user.
+   - `POST /login`: Log in and receive a JWT token.
+   - `GET /protected`: Access a protected route (requires JWT).
 
-- **Registration**:
+### Example Request: Registration
 
-   ```http
-   POST /api/register
-   {
-      "username": "user123",
-      "email": "user@example.com",
-      "password": "password123"
-   }
-   ```
+```bash
+curl -X POST http://localhost/register -d '{"username": "john", "email": "john@example.com", "password": "your_password"}' -H 'Content-Type: application/json'
+```
 
-- **Login**:
+### Example Request: Login
 
-   ```http
-   POST /api/login
-   {
-      "email": "user@example.com",
-      "password": "password123"
-   }
-   ```
+```bash
+curl -X POST http://localhost/login -d '{"email": "john@example.com", "password": "your_password"}' -H 'Content-Type: application/json'
+```
 
-   A successful login will return a JWT token.
+### Example Request: Access Protected Route
 
-- **Protected Routes**:
-
-   Use the token in the `Authorization` header to access protected routes:
-
-   ```http
-   GET /api/protected
-   Authorization: Bearer your_jwt_token
-   ```
+```bash
+curl -X GET http://localhost/protected -H 'Authorization: Bearer your_jwt_token'
+```
 
 ## Testing
 
-You can run unit tests using [PHPUnit](https://phpunit.de/):
+To run the tests:
 
 ```bash
 composer test
@@ -114,23 +86,13 @@ composer test
 
 ## Code Quality
 
-The project uses [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) for coding standard checks and auto-fixes:
+To check for coding standards and automatically fix issues:
 
-- **Lint the code**:
-
-   ```bash
-   composer lint
-   ```
-
-- **Fix coding style**:
-
-   ```bash
-   composer fix
-   ```
+```bash
+composer lint
+composer fix
+```
 
 ## License
 
 This project is licensed under the MIT License.
-
-
-

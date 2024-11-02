@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Models;
+
+use Exception;
+use PDO;
+
 class Friend {
     private $conn;
     private $table = 'friends';
@@ -8,42 +13,65 @@ class Friend {
         $this->conn = $db;
     }
 
-    // Add friend
+    
     public function addFriend($userId, $friendId) {
-        $query = "INSERT INTO " . $this->table . " (user_id, friend_id) VALUES (:user_id, :friend_id)";
-        $stmt = $this->conn->prepare($query);
-
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':friend_id', $friendId);
-
-        if ($stmt->execute()) {
-            return true;
+        if ($this->isFriend($userId, $friendId)) {
+            throw new Exception('Friendship already exists.');
         }
 
-        return false;
+        $query = "INSERT INTO " . $this->table . " (user_id, friend_id) VALUES (:userId, :friendId)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':friendId', $friendId);
+
+        if (!$stmt->execute()) {
+            throw new Exception('Failed to add friend.');
+        }
+
+        return true;
     }
 
-    // Remove friend
+    
     public function removeFriend($userId, $friendId) {
-        $query = "DELETE FROM " . $this->table . " WHERE user_id = :user_id AND friend_id = :friend_id";
+        $query = "DELETE FROM " . $this->table . " WHERE user_id = :userId AND friend_id = :friendId";
         $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':friendId', $friendId);
 
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':friend_id', $friendId);
-
-        if ($stmt->execute()) {
-            return true;
+        if (!$stmt->execute()) {
+            throw new Exception('Failed to remove friend.');
         }
 
-        return false;
+        return true;
     }
 
-    // Get friends
+    
     public function getFriends($userId) {
-        $query = "SELECT friend_id FROM " . $this->table . " WHERE user_id = :user_id";
+        $query = "SELECT friend_id FROM " . $this->table . " WHERE user_id = :userId";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':userId', $userId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+   
+    private function isFriend($userId, $friendId) {
+        $query = "SELECT COUNT(*) FROM " . $this->table . " WHERE user_id = :userId AND friend_id = :friendId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':friendId', $friendId);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
+   
+    public function doesUserExist($userId) {
+        $query = "SELECT id FROM users WHERE id = :userId LIMIT 1"; 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0; 
+    }
 }
+?>

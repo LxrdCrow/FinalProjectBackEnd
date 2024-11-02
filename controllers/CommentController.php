@@ -1,21 +1,29 @@
 <?php
 
-class CommentController {
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/Comment.php';
+require_once __DIR__ . '/BaseAuthenticableController.php';
+
+use App\Models\Comment;
+use App\Controllers\BaseAuthenticableController;
+
+class CommentController extends BaseAuthenticableController {
     private $model;
 
     public function __construct() {
-        
-        $this->model = new Comment();
+        parent::__construct(); 
+        $db = Database::getConnection(); 
+        $this->model = new Comment($db); 
     }
 
-    // Creation of comment route
+    
     public function createComment() {
-        $postId = filter_var($_POST['post_id'], FILTER_VALIDATE_INT);
-    $userId = $_SESSION['user_id']; 
-    $comment = htmlspecialchars($_POST['comment'], ENT_QUOTES, 'UTF-8'); 
-       
+        $postId = filter_input(INPUT_POST, 'post_id', FILTER_VALIDATE_INT);
+        $userId = $this->getUserId(); 
+        $comment = htmlspecialchars(filter_input(INPUT_POST, 'comment'), ENT_QUOTES, 'UTF-8');
 
-        // Validation of fields
+
+        
         if (!$postId || !$comment) {
             http_response_code(400);
             echo json_encode(['message' => 'Missing or invalid fields']);
@@ -26,31 +34,25 @@ class CommentController {
         echo json_encode(['message' => 'Comment added']);
     }
 
-
-
-    // Get all comments
-    public function getComments() {
-        $postId = filter_var($_GET['post_id'], FILTER_VALIDATE_INT);
     
+    public function getComments() {
+        $postId = filter_input(INPUT_GET, 'post_id', FILTER_VALIDATE_INT);
+
         if (!$postId) {
             http_response_code(400);
             echo json_encode(['message' => 'Post ID is required or invalid']);
             return;
         }
-    
+
         $comments = $this->model->getCommentsByPost($postId);
         echo json_encode($comments);
     }
+
     
-
-    // Update a comment
     public function updateComment() {
-        $commentId = filter_var($_POST['comment_id'], FILTER_VALIDATE_INT);
-        $userId = $_SESSION['user_id']; 
-        $newComment = htmlspecialchars($_POST['comment'], ENT_QUOTES, 'UTF-8');
-
-        
-
+        $commentId = filter_input(INPUT_POST, 'comment_id', FILTER_VALIDATE_INT);
+        $userId = $this->getUserId(); 
+        $newComment = htmlspecialchars(filter_input(INPUT_POST, 'comment'), ENT_QUOTES, 'UTF-8');
     
         if (!$commentId || !$newComment) {
             http_response_code(400);
@@ -58,8 +60,15 @@ class CommentController {
             return;
         }
     
-        $updated = $this->model->updateComment($commentId, $userId, $newComment);
+        // ACCESS check: verified if user is author of comment or not
+        $authorId = $this->model->getCommentAuthor($commentId);
+        if ($authorId !== $userId) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Access denied']);
+            return;
+        }
     
+        $updated = $this->model->updateComment($commentId, $userId, $newComment);
         if ($updated) {
             echo json_encode(['message' => 'Comment updated']);
         } else {
@@ -68,11 +77,9 @@ class CommentController {
         }
     }
     
-
-    // Delete a comment
     public function deleteComment() {
-        $commentId = filter_var($_POST['comment_id'], FILTER_VALIDATE_INT);
-        $userId = $_SESSION['user_id']; 
+        $commentId = filter_input(INPUT_POST, 'comment_id', FILTER_VALIDATE_INT);
+        $userId = $this->getUserId(); 
     
         if (!$commentId) {
             http_response_code(400);
@@ -80,8 +87,15 @@ class CommentController {
             return;
         }
     
-        $deleted = $this->model->deleteComment($commentId, $userId);
+        // ACCESS check: verified if user is author of comment or not
+        $authorId = $this->model->getCommentAuthor($commentId);
+        if ($authorId !== $userId) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Access denied']);
+            return;
+        }
     
+        $deleted = $this->model->deleteComment($commentId, $userId);
         if ($deleted) {
             echo json_encode(['message' => 'Comment deleted']);
         } else {
@@ -89,7 +103,6 @@ class CommentController {
             echo json_encode(['message' => 'Unable to delete comment']);
         }
     }
-
-}    
-
+    
+}
 ?>

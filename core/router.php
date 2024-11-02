@@ -17,14 +17,12 @@ class Router {
     public function dispatch($uri) {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-        
         $uri = strtok($uri, '?');
 
         if (isset($this->routes[$requestMethod][$uri])) {
             $action = $this->routes[$requestMethod][$uri];
             $this->executeAction($action);
         } else {
-            
             http_response_code(404);
             echo json_encode(['message' => 'Route not found']);
         }
@@ -35,26 +33,30 @@ class Router {
         list($controllerName, $method) = explode('@', $action);
         $controllerFile = __DIR__ . '/../controllers/' . $controllerName . '.php';
 
-        if (file_exists($controllerFile)) {
-            require_once $controllerFile;
-            $controller = new $controllerName;
+        try {
+            if (file_exists($controllerFile)) {
+                require_once $controllerFile;
+                $controller = new $controllerName;
 
-            if (method_exists($controller, $method)) {
-                $controller->{$method}();
+                if (method_exists($controller, $method)) {
+                    $controller->{$method}();
+                } else {
+                    throw new Exception('Method not found');
+                }
             } else {
-                http_response_code(404);
-                echo json_encode(['message' => 'Method not found']);
+                throw new Exception('Controller not found');
             }
-        } else {
-            http_response_code(404);
-            echo json_encode(['message' => 'Controller not found']);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Internal Server Error', 'error' => $e->getMessage()]);
         }
     }
 }
 
 $router = new Router();
 
-
 require_once __DIR__ . '/../routes/api.php';
+
+$router->dispatch($_SERVER['REQUEST_URI']);
 
 ?>

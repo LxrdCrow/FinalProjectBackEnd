@@ -12,22 +12,22 @@ This is the back-end implementation of the Final Project for managing user authe
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/LxrdCrow/FinalProjectBackEnd.git
    ```
 
-2. Navigate to the project directory:
+2. **Navigate to the project directory**:
    ```bash
    cd FinalProjectBackEnd
    ```
 
-3. Install the required dependencies:
+3. **Install the required dependencies**:
    ```bash
    composer install
    ```
 
-4. Set up your environment variables:
+4. **Set up your environment variables**:
    Create a `.env` file in the root of your project and configure your database and other settings:
    ```
    DB_HOST=localhost
@@ -38,39 +38,41 @@ This is the back-end implementation of the Final Project for managing user authe
    APP_ENV=development # or production
    ```
 
-5. Run the database migrations:
+5. **Run the database migrations**:
    Make sure you have created the necessary database, then run the SQL migration:
    ```bash
    mysql -u your_username -p your_database_name < migrations.sql
    ```
 
-6. Set file permissions for the logs directory:
+6. **Set file permissions for the logs directory**:
    ```bash
    chmod 755 logs
    ```
 
 ## Usage
 
-- **Starting the server**: Make sure your PHP server is running (e.g., XAMPP or another local PHP environment).
+- **Starting the server**: Ensure your PHP server is running (e.g., XAMPP or another local PHP environment).
 
 - **API Endpoints**:
    - `POST /register`: Register a new user.
    - `POST /login`: Log in and receive a JWT token.
    - `GET /protected`: Access a protected route (requires JWT).
 
-### Example Request: Registration
+### Example Requests
+
+#### Registration
 
 ```bash
 curl -X POST http://localhost/register -d '{"username": "john", "email": "john@example.com", "password": "your_password"}' -H 'Content-Type: application/json'
 ```
 
-### Example Request: Login
+#### Login
 
 ```bash
 curl -X POST http://localhost/login -d '{"email": "john@example.com", "password": "your_password"}' -H 'Content-Type: application/json'
 ```
 
-### Example Request: Access Protected Route
+#### Access Protected Route
 
 ```bash
 curl -X GET http://localhost/protected -H 'Authorization: Bearer your_jwt_token'
